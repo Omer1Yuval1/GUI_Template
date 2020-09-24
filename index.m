@@ -60,32 +60,40 @@ function index()
 					
 					[filepath,filename,ext] = fileparts(File1{ff});
 					P.Data(ff).Info.Experiment(1).Identifier = filename;
-					P.Data(ff).Info.Files(1).Input_File{1} = [Path1,filesep,File1{ff}];
+					
+					if(P.GUI_Handles.Save_Input_Data_Path) % Save path to input files.
+						P.Data(ff).Info.Files(1).Input_File{1} = [Path1,filesep,File1{ff}];
+					else
+						P.Data(ff).Info.Files(1).Input_File{1} = imread([Path1,filesep,File1{ff}]);
+					end
 					
 					Label_ff = ['Project_X',num2str(ff),'_',P.Data(ff).Info.Experiment(1).Identifier];
-					uimenu(P.GUI_Handles.Project_Menu,'Text',Label_ff,'UserData',ff,'Callback',{@Switch_Project_Func,P});
+					uimenu(P.GUI_Handles.Menus(1),'Text',Label_ff,'UserData',ff,'Callback',{@Switch_Project_Func,P});
 				end
 			else % If a project file(s) was loaded.
 				for pp=1:numel(P.Data) % For each project.
-					[filepath,filename,ext] = fileparts(P.Data(pp).Files.Input_File{1});
 					
-					if(~exist(filepath,'dir') == 7 || isfile(P.Data(pp).Files.Input_File{1})) % If the path or file don't exist.
-						[File1,Path1,Selection_Index] = uigetfile(P.GUI_Handles.Input_Data_Formats); % Ask the user to select the file.
-					else
-						Selection_Index = 0;
-					end
-					
-					if(Selection_Index) % If the path should be updated.
-						[filepath1,filename1,ext1] = fileparts(File1);
-						if(~isequal(filename,filename1))
-							warning('File name does not match the original file name.');
+					if(P.GUI_Handles.Save_Input_Data_Path) % Validate path. If it is not found, ask the user to specify a new path and save it.
+						[filepath,filename,ext] = fileparts(P.Data(pp).Info.Files.Input_File{1});
+						
+						if(~exist(filepath,'dir') == 7 || isfile(P.Data(pp).Info.Files.Input_File{1})) % If the path or file don't exist.
+							[File1,Path1,Selection_Index] = uigetfile(P.GUI_Handles.Input_Data_Formats); % Ask the user to select the file.
+						else
+							Selection_Index = 0;
 						end
-						P.Data(pp).Info.Experiment(1).Identifier = filename1;
-						P.Data(pp).Info.Files.Input_File{1} = [Path1,filesep,File1{1}]; % A single file for project pp.
+						
+						if(Selection_Index) % If the path should be updated.
+							[filepath1,filename1,ext1] = fileparts(File1);
+							if(~isequal(filename,filename1))
+								warning('File name does not match the original file name.');
+							end
+							P.Data(pp).Info.Experiment(1).Identifier = filename1;
+							P.Data(pp).Info.Files.Input_File{1} = [Path1,filesep,File1{1}]; % A single file for project pp.
+						end
 					end
 					
 					Label_pp = ['Project_X',num2str(pp),'_',P.Data(pp).Info.Experiment(1).Identifier];
-					uimenu(P.GUI_Handles.Project_Menu,'Text',Label_pp,'UserData',pp,'Callback',{@Switch_Project_Func,P});
+					uimenu(P.GUI_Handles.Menus(1),'Text',Label_pp,'UserData',pp,'Callback',{@Switch_Project_Func,P});
 				end
 			end
 			
@@ -99,7 +107,12 @@ function index()
 				P.GUI_Handles.Axes_Grid = uigridlayout(P.GUI_Handles.Main_Panel_1,[1,length(File1)],'RowHeight',repmat({'1x'},1,1),'ColumnWidth',repmat({'1x'},1,length(File1)));
 				P.Data(1) = project_init(P);
 				for vv=1:length(File1) % For each view.
-					P.Data(1).Info.Files{vv}.Input_File{vv} = [Path1,filesep,File1{vv}];
+					
+					if(P.GUI_Handles.Save_Input_Data_Path) % Save only the path of the input files.
+						P.Data(1).Info.Files{vv}.Input_File{vv} = [Path1,filesep,File1{vv}];
+					else
+						P.Data(1).Info.Files{vv}.Input_File{vv} = imread([Path1,filesep,File1{vv}]);
+					end
 					
 					P.GUI_Handles.View_Axes(vv) = uiaxes(P.GUI_Handles.Axes_Grid,'BackgroundColor',P.GUI_Handles.BG_Color_1);
 					% P.GUI_Handles.View_Axes(vv) = uiimage(P.GUI_Handles.Axes_Grid);
@@ -119,32 +132,35 @@ function index()
 				[filepath,filename,ext] = fileparts(File1{1});
 				P.Data(1).Info.Experiment(1).Identifier = filename;
 				Label_1 = ['Project_X1','_',P.Data(1).Info.Experiment(1).Identifier];
-				uimenu(P.GUI_Handles.Project_Menu,'Text',Label_1,'UserData',1,'Callback',{@Switch_Project_Func,P});
+				uimenu(P.GUI_Handles.Menus(1),'Text',Label_1,'UserData',1,'Callback',{@Switch_Project_Func,P});
 			else % If a project file(s) was loaded.
-				P.GUI_Handles.View_Axes = gobjects(1,length(P.Data(1).Files.Input_File));
-				P.GUI_Handles.Axes_Grid = uigridlayout(P.GUI_Handles.Main_Panel_1,[1,length(File1)],'RowHeight',repmat({'1x'},1,1),'ColumnWidth',repmat({'1x'},1,length(P.Data(1).Files.Input_File)));
+				P.GUI_Handles.View_Axes = gobjects(1,length(P.Data(1).Info.Files.Input_File));
+				P.GUI_Handles.Axes_Grid = uigridlayout(P.GUI_Handles.Main_Panel_1,[1,length(File1)],'RowHeight',repmat({'1x'},1,1),'ColumnWidth',repmat({'1x'},1,length(P.Data(1).Info.Files.Input_File)));
 				for pp=1:numel(P.Data) % For each project.
-					[filepath,filename,ext] = fileparts(P.Data(pp).Files.Input_File{1});
-					if(~exist(filepath,'dir') == 7 || isfile(P.Data(pp).Files.Input_File{1})) % If the path or file don't exist.
-						[File1,Path1,Selection_Index] = uigetfile(P.GUI_Handles.Input_Data_Formats,'MultiSelect','on'); % Ask the user to select the file.
-					else
-						Selection_Index = 0;
-					end
 					
-					if(Selection_Index)
-						[filepath1,filename1,ext1] = fileparts(File1{1});
-						if(~isequal(filename,filename1))
-							warning('File name does not match the original file name.');
+					if(P.GUI_Handles.Save_Input_Data_Path) % Validate path. If it is not found, ask the user to specify a new path and save it.
+						[filepath,filename,ext] = fileparts(P.Data(pp).Info.Files.Input_File{1});
+						if(~exist(filepath,'dir') == 7 || isfile(P.Data(pp).Info.Files.Input_File{1})) % If the path or file don't exist.
+							[File1,Path1,Selection_Index] = uigetfile(P.GUI_Handles.Input_Data_Formats,'MultiSelect','on'); % Ask the user to select the file.
+						else
+							Selection_Index = 0;
 						end
-						P.Data(pp).Info.Experiment(1).Identifier = filename1;
 						
-						for vv=1:length(File1) % For each view.
-							P.Data(pp).Info.Files{vv}.Input_File{vv} = [Path1,filesep,File1{vv}];
+						if(Selection_Index)
+							[filepath1,filename1,ext1] = fileparts(File1{1});
+							if(~isequal(filename,filename1))
+								warning('File name does not match the original file name.');
+							end
+							P.Data(pp).Info.Experiment(1).Identifier = filename1;
+							
+							for vv=1:length(File1) % For each view.
+								P.Data(pp).Info.Files{vv}.Input_File{vv} = [Path1,filesep,File1{vv}];
+							end
 						end
 					end
 					
 					Label_pp = ['Project_X',num2str(pp),'_',P.Data(pp).Info.Experiment(1).Identifier];
-					uimenu(P.GUI_Handles.Project_Menu,'Text',Label_pp,'UserData',pp,'Callback',{@Switch_Project_Func,P});
+					uimenu(P.GUI_Handles.Menus(1),'Text',Label_pp,'UserData',pp,'Callback',{@Switch_Project_Func,P});
 				end
 				
 				for vv=1:length(File1) % For each view.
@@ -156,10 +172,12 @@ function index()
 			end
 		end
 		
+		figure(P.GUI_Handles.Main_Figure);
+		
 		Display_Project_Info(P);
 		
-		set(P.GUI_Handles.Project_Menu,'UserData',1);
-		set(P.GUI_Handles.Project_Menu.Children(end),'Checked','on');
+		set(P.GUI_Handles.Menus(1),'UserData',1);
+		set(P.GUI_Handles.Menus(1).Children(end),'Checked','on');
 		
 		set(P.GUI_Handles.Buttons(1),'Backgroundcolor',P.GUI_Handles.Step_BG_Done);
 		set(All_Enabled_Objects,'Enable','on');
@@ -188,13 +206,17 @@ function index()
 		if(~iscell(File))
 			File = {File};
 		end
-			
-		for ii=1:length(File) % For each loaded project.
+		
+		pp = 0;
+		for ii=1:length(File) % For each loaded project file (may contain one or more projects).
 			
 			Loaded_File = load([Path,File{ii}]);
 			
 			if(isfield(Loaded_File,'Project_X')) % If a project struct exists for the first loaded project.
-				P.Data(ii) = Loaded_File.Project_X;
+				for jj=1:numel(Loaded_File.Project_X) % For each project within the ii project file.
+					pp = pp + 1;
+					P.Data(pp) = Loaded_File.Project_X(pp);
+				end
 			end
 		end
 		
@@ -203,7 +225,7 @@ function index()
 		set(source,'Enable','on','Backgroundcolor',P.GUI_Handles.Step_BG_Done);
 		
 		set(All_Enabled_Objects,'Enable','on');
-		set(allchild(P.GUI_Handles.Project_Menu),'Enable','on');
+		set(allchild(P.GUI_Handles.Menus(1)),'Enable','on');
 	end
 	
 	function Step_Buttons_Func(source,~,P)
@@ -254,8 +276,8 @@ function index()
 			P.GUI_Handles.Current_Project = source.UserData;
 			pp = P.GUI_Handles.Current_Project;
 			
-			set(P.GUI_Handles.Project_Menu,'UserData',source.UserData);
-			set(allchild(P.GUI_Handles.Project_Menu),'Checked','off');
+			set(P.GUI_Handles.Menus(1),'UserData',source.UserData);
+			set(allchild(P.GUI_Handles.Menus(1)),'Checked','off');
 			set(source,'Checked','on');
 			
 			% Display project data:
@@ -285,8 +307,9 @@ function index()
 		for tt=1:length(P.GUI_Handles.Info_Fields_List)
 			FF = fields(P.Data(pp).Info.(P.GUI_Handles.Info_Fields_List{tt}));
 			for ii=1:length(FF) % For each field in the experiment struct.
-				P.GUI_Handles.Info_Tables(tt).Data{ii,1} = FF{ii};
-				P.GUI_Handles.Info_Tables(tt).Data{ii,2} = P.Data(pp).Info.(P.GUI_Handles.Info_Fields_List{tt})(1).(FF{ii});
+				P.GUI_Handles.Info_Tables(tt).Data{ii,1} = FF{ii}; % Field name.
+				P.GUI_Handles.Info_Tables(tt).Data{ii,2} = P.Data(pp).Info.(P.GUI_Handles.Info_Fields_List{tt})(1).(FF{ii}); % Value.
+				P.GUI_Handles.Info_Tables(tt).Data{ii,3} = P.Data(pp).Info.(P.GUI_Handles.Info_Fields_List{tt})(2).(FF{ii}); % Unit.
 			end
 		end
 		
@@ -295,12 +318,12 @@ function index()
 	
 	function Update_Info_Func(source,event,P)
 		pp = P.GUI_Handles.Current_Project;
-        
+		
 		tt = source.UserData; % Table index.
 		ff = P.GUI_Handles.Info_Fields_List{tt}; % Corresponding field name in P(pp).Data.Info.
-        rr = event.Indices(1); % Table rows correspond to struct fields.
-        cc = event.Indices(2); % Second column is the value and the third is the unit. First column is read-only (field name).
-        FF = fields(P.Data(pp).Info.(ff));
+		rr = event.Indices(1); % Table rows correspond to struct fields.
+		cc = event.Indices(2); % Second column is the value and the third is the unit. First column is read-only (field name).
+		FF = fields(P.Data(pp).Info.(ff));
 		
 		P.Data(pp).Info.(ff)(cc-1).(FF{rr}) = event.NewData;
 	end

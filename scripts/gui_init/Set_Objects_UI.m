@@ -1,6 +1,6 @@
 function Set_Objects_UI(P)
 	
-	P.GUI_Handles.Main_Figure = uifigure;
+	P.GUI_Handles.Main_Figure = uifigure('Name',[P.GUI_Handles.Software_Name,' ',P.GUI_Handles.Software_Version]);
 	clf(P.GUI_Handles.Main_Figure);
 	set(P.GUI_Handles.Main_Figure,'WindowState','maximized','Color',[.2,.2,.2]);
 	drawnow;
@@ -29,8 +29,10 @@ function Set_Objects_UI(P)
 	P.GUI_Handles.Steps_Panel.Layout.Row = [24,25];
 	P.GUI_Handles.Steps_Panel.Layout.Column = [1,10];
 	
-	P.GUI_Handles.Project_Menu = uimenu(P.GUI_Handles.Main_Figure,'Text','Project');
-	P.GUI_Handles.Plot_Type_Menu = uimenu(P.GUI_Handles.Main_Figure,'Text','menu 2','Enable','off');
+	P.GUI_Handles.Menus = gobjects(1,length(P.GUI_Handles.Menu_Names))
+	for m=1:length(P.GUI_Handles.Menu_Names)
+		P.GUI_Handles.Menus(m) = uimenu(P.GUI_Handles.Main_Figure,'Text',P.GUI_Handles.Menu_Names{m});
+	end
 	
 	% Control panel:
 	P.GUI_Handles.Buttons = gobjects(1,9);
@@ -96,7 +98,7 @@ function Set_Objects_UI(P)
 		Info_Tabs(t) = uitab(Info_Tab_Group,'Title',P.GUI_Handles.Info_Fields_List{t});
 		Info_Grids(t) = uigridlayout(Info_Tabs(t),[1,1],'Padding',[0,0,0,0]);
 		W = Info_Tabs(t).InnerPosition(3);
-		P.GUI_Handles.Info_Tables(t) = uitable(Info_Grids(t),'Data',cell(10,3),'UserData',t,'ColumnWidth',{W.*0.4,W.*0.4,'auto'},'ColumnEditable',[false,true,true],'RowName',[],'ColumnName',[],'ForegroundColor','w','BackgroundColor',P.GUI_Handles.BG_Color_1); % {'1x','1x','0.2x'}
+		P.GUI_Handles.Info_Tables(t) = uitable(Info_Grids(t),'Data',cell(10,3),'UserData',t,'ColumnWidth',{W.*0.35,W.*0.35,'auto'},'ColumnEditable',[false,true,true],'RowName',[],'ColumnName',[],'ForegroundColor','w','BackgroundColor',P.GUI_Handles.BG_Color_1); % {'1x','1x','0.2x'}
 		addStyle(P.GUI_Handles.Info_Tables(t),s);
 	end
     
