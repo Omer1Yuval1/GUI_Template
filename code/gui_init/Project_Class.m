@@ -7,7 +7,7 @@ classdef Project_Class < handle
     
     methods
         function obj = Project_Class() % Constructor.
-			obj.Data = struct('Field_1',{},'Field_2',{},'Parameters','Info',{});
+			obj.Data = struct('Field_1',{},'Field_2',{},'Parameters',{},'Info',{});
 			obj.GUI_Handles = struct();
         end
 		
@@ -18,7 +18,7 @@ classdef Project_Class < handle
 			
 			S(1).Info(1).Experiment = struct('Identifier',{},'Username',{},'Date',{},'Temperature',{},'Scale_Factor',{},'Time',{},'Duration',{});
 			S.Info.Analysis = struct('Commit',{},'Username',{},'Date',{});
-			S.Info.Files = struct('Input_File',{});
+			S.Info.Files = struct('Raw_Image',{});
 			
 			% The second row is used for units:
 			S.Info.Experiment(2).Date = 'YYYYMMDD';
