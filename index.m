@@ -209,7 +209,7 @@ function index()
 		set(P.GUI_Handles.Menus(1),'UserData',1);
 		set(P.GUI_Handles.Menus(1).Children(end),'Checked','on');
 		
-		set(P.GUI_Handles.Buttons(1),'Backgroundcolor',P.GUI_Handles.Step_BG_Done);
+		set(P.GUI_Handles.Buttons(1,1),'Backgroundcolor',P.GUI_Handles.Step_BG_Done);
 		
 		if(P.GUI_Handles.Current_Step == 0)
 			P.GUI_Handles.Current_Step = 1;
@@ -347,7 +347,6 @@ function index()
 			end
 			P.GUI_Handles.Info_Tables(tt).Data = Data;
 		end
-		
 	end
 	
 	function Update_Info_Func(source,event,P)

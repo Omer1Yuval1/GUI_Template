@@ -13,6 +13,7 @@ function GUI_Params(P)
 	P.GUI_Handles.Info_Fields_List = {'Experiment','Analysis'}; % Fields to include as tabs and tables in the info panel.
 	P.GUI_Handles.Menu_Names = {'Project','Menu 2','Menu 3'};
 	
+    P.GUI_Handles.Figure_Dims_Ratio = 2;
 	P.GUI_Handles.Panel_Padding = 10; % pixels.
 	
 	P.GUI_Handles.Buttons_FontSize = 16;

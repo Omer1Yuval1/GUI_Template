@@ -1,6 +1,6 @@
 function Set_Objects_UI(P)
 	
-	P.GUI_Handles.Main_Figure = uifigure('Name',[P.GUI_Handles.Software_Name,' ',P.GUI_Handles.Software_Version]);
+	P.GUI_Handles.Main_Figure = uifigure('Name',[P.GUI_Handles.Software_Name,' ',P.GUI_Handles.Software_Version],'AutoResizeChildren','off');
 	clf(P.GUI_Handles.Main_Figure);
 	set(P.GUI_Handles.Main_Figure,'WindowState','maximized','Color',P.GUI_Handles.BG_Color_1);
 	drawnow;
@@ -77,11 +77,16 @@ function Set_Objects_UI(P)
             P.GUI_Handles.Control_Panel_Objects(i,j).Layout.Row = i;
 			P.GUI_Handles.Control_Panel_Objects(i,j).Layout.Column = 1 + (2*(j-1));
         end
-        
-		% Set radio button positions:
-        P.GUI_Handles.Control_Panel_Objects(5-i,2).Position(2) = (i-1) .* P.GUI_Handles.Control_Panel_Objects(5-i,2).Position(4) .* 1.59;
+	end
+    
+	drawnow; drawnow;
+	
+	for i=1:4 % % Set radio button positions.
+		% P.GUI_Handles.Control_Panel_Objects(5-i,2).Position(2) = (i-1) .* P.GUI_Handles.Control_Panel_Objects(5-i,2).Position(4) .* 1.59;
+		P.GUI_Handles.Control_Panel_Objects(5-i,2).Position(2) = P.GUI_Handles.Control_Panel_Objects(5-i,1).Position(2) - P.GUI_Handles.Radio_Group_1.Position(2);
 		P.GUI_Handles.Control_Panel_Objects(5-i,2).Position(3) = P.GUI_Handles.Radio_Group_1.Position(3);
 	end
+    
 	set(P.GUI_Handles.Control_Panel_Objects(1,3),'Text','Bin size:');
 	set(P.GUI_Handles.Control_Panel_Objects(2,3),'Text','Statistics:');
 	set(P.GUI_Handles.Control_Panel_Objects(3,3),'Text','Normalization:');
@@ -123,7 +128,12 @@ function Set_Objects_UI(P)
 		addStyle(P.GUI_Handles.Info_Tables(t),s);
 	end
     
-	drawnow;
+	fig_pos = get(P.GUI_Handles.Main_Figure,'Position');
+    fig_pos(4) = fig_pos(3) ./ P.GUI_Handles.Figure_Dims_Ratio;
+    P.GUI_Handles.Main_Figure.Position = fig_pos;
+	set(P.GUI_Handles.Main_Figure,'Resize',0);
+    
+    drawnow;
 	
 	close(dd);
 end
